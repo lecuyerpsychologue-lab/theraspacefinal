@@ -47,7 +47,7 @@ async function callMistralAPI(messages: Array<{role: string, content: string}>, 
 export const getEchoScenario = async (): Promise<mockApi.EchoScenario> => {
   if (useRealAPI) {
     try {
-      const content = await callMistralAPI([
+      await callMistralAPI([
         {
           role: 'system',
           content: 'Tu es un psychologue pour adolescents. Crée un scénario social réaliste avec 4 réactions possibles.'
@@ -338,7 +338,7 @@ export const getPhareWeeklyGoals = async (week: number, level: string): Promise<
   };
 };
 
-export const getJournalSuggestion = async (userData: any): Promise<string> => {
+export const getJournalSuggestion = async (): Promise<string> => {
   if (useRealAPI) {
     try {
       const content = await callMistralAPI([

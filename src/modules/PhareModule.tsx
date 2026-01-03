@@ -1,11 +1,11 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Save, Share2, Check } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { getPhareQuestions, calculatePhareResult, getPhareWeeklyGoals } from '../lib/apiClient';
-import type { PhareResult, PhareWeeklyGoals } from '../lib/apiClient';
+import type { PhareResult, PhareWeeklyGoals, PhareQuestion } from '../lib/apiClient';
 import { saveToJournal, shareContent } from '../lib/shareUtils';
 
 interface PhareModuleProps {
@@ -29,8 +29,17 @@ export default function PhareModule({ onBack }: PhareModuleProps) {
   const [weekProgress, setWeekProgress] = useLocalStorage<WeekProgress[]>('phare-week-progress', []);
   const [currentWeek, setCurrentWeek] = useState(1);
   const [weeklyGoals, setWeeklyGoals] = useState<PhareWeeklyGoals | null>(null);
+  const [questions, setQuestions] = useState<PhareQuestion[]>([]);
 
-  const questions = getPhareQuestions();
+  useEffect(() => {
+    // Load questions when component mounts
+    const loadQuestions = async () => {
+      const loadedQuestions = await getPhareQuestions();
+      setQuestions(loadedQuestions);
+    };
+    loadQuestions();
+  }, []);
+
   const totalQuestions = 18;
   const progress = (currentQuestion / totalQuestions) * 100;
 

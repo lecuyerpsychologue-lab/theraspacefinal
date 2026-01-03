@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import React from 'react';
 import { 
   Cloud, CloudRain, Sun, CloudSnow, CloudDrizzle, Wind,
-  Heart, Footprints, MessageCircle, Sprout, User, Brain, BookOpen, Phone,
+  MessageCircle, Sprout, User, Brain, BookOpen, Phone,
   Smile, Compass, BarChart3, Anchor, Wind as Breath
 } from 'lucide-react';
 import { useState } from 'react';
