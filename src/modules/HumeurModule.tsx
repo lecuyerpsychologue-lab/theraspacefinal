@@ -19,14 +19,14 @@ interface HumeurEntry {
 }
 
 const emotions = [
-  { name: 'Joie', color: '#FFD700', angle: 0 },
-  { name: 'Fierté', color: '#FF6B9D', angle: 45 },
-  { name: 'Colère', color: '#FF4444', angle: 90 },
-  { name: 'Tristesse', color: '#4169E1', angle: 135 },
-  { name: 'Peur', color: '#9370DB', angle: 180 },
-  { name: 'Dégoût', color: '#32CD32', angle: 225 },
-  { name: 'Surprise', color: '#FFA500', angle: 270 },
-  { name: 'Calme', color: '#87CEEB', angle: 315 },
+  { name: 'Joie', color: '#FFD700', angle: 0, emoji: '😊' },
+  { name: 'Fierté', color: '#FF6B9D', angle: 45, emoji: '🌟' },
+  { name: 'Colère', color: '#FF4444', angle: 90, emoji: '😠' },
+  { name: 'Tristesse', color: '#4169E1', angle: 135, emoji: '😢' },
+  { name: 'Peur', color: '#9370DB', angle: 180, emoji: '😰' },
+  { name: 'Dégoût', color: '#32CD32', angle: 225, emoji: '🤢' },
+  { name: 'Surprise', color: '#FFA500', angle: 270, emoji: '😮' },
+  { name: 'Calme', color: '#87CEEB', angle: 315, emoji: '😌' },
 ];
 
 const contexts = [
@@ -154,14 +154,7 @@ export default function HumeurModule({ onBack }: HumeurModuleProps) {
                         className="w-16 h-16 rounded-full flex items-center justify-center text-3xl"
                         style={{ backgroundColor: emotion.color }}
                       >
-                        {emotion.name === 'Joie' && '😊'}
-                        {emotion.name === 'Fierté' && '🌟'}
-                        {emotion.name === 'Colère' && '😠'}
-                        {emotion.name === 'Tristesse' && '😢'}
-                        {emotion.name === 'Peur' && '😰'}
-                        {emotion.name === 'Dégoût' && '🤢'}
-                        {emotion.name === 'Surprise' && '😮'}
-                        {emotion.name === 'Calme' && '😌'}
+                        {emotion.emoji}
                       </div>
                       <span className="font-medium text-noir-chaud">
                         {emotion.name}

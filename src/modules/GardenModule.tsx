@@ -43,8 +43,11 @@ export default function GardenModule({ onBack }: GardenModuleProps) {
 
   const MAX_DAILY_ACTIONS = 3;
 
+  // Helper function to get today's date string
+  const getTodayDateString = () => new Date().toISOString().split('T')[0];
+
   const canPerformAction = () => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = getTodayDateString();
     if (dailyActions.date !== today) {
       setDailyActions({date: today, count: 0});
       return true;
@@ -53,7 +56,7 @@ export default function GardenModule({ onBack }: GardenModuleProps) {
   };
 
   const incrementDailyActions = () => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = getTodayDateString();
     if (dailyActions.date !== today) {
       setDailyActions({date: today, count: 1});
     } else {
@@ -62,7 +65,7 @@ export default function GardenModule({ onBack }: GardenModuleProps) {
   };
 
   const checkAndGrowPlants = () => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = getTodayDateString();
     const newGarden = garden.map(row => 
       row.map(cell => {
         if (!cell) return null;
@@ -105,7 +108,7 @@ export default function GardenModule({ onBack }: GardenModuleProps) {
         return;
       }
       
-      const today = new Date().toISOString().split('T')[0];
+      const today = getTodayDateString();
       const lastWatered = new Date(cell.lastWateredDate).toISOString().split('T')[0];
       
       if (lastWatered === today) {
@@ -187,7 +190,7 @@ export default function GardenModule({ onBack }: GardenModuleProps) {
   const resetGarden = () => {
     if (confirm('Es-tu sûr de vouloir réinitialiser ton jardin ?')) {
       setGarden(Array(9).fill(null).map(() => Array(9).fill(null)));
-      setDailyActions({date: new Date().toISOString().split('T')[0], count: 0});
+      setDailyActions({date: getTodayDateString(), count: 0});
       reset();
     }
   };
@@ -210,7 +213,7 @@ export default function GardenModule({ onBack }: GardenModuleProps) {
     return garden.flat().filter(cell => cell && cell.growthLevel === 3).length;
   };
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = getTodayDateString();
   const actionsLeft = dailyActions.date === today ? MAX_DAILY_ACTIONS - dailyActions.count : MAX_DAILY_ACTIONS;
 
   return (
