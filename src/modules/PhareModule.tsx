@@ -372,38 +372,74 @@ export default function PhareModule({ onBack }: PhareModuleProps) {
                   Ton voyage vers le Phare
                 </h3>
                 
-                <div className="relative h-32 bg-gradient-to-r from-blue-900 via-blue-600 to-blue-300 rounded-xl overflow-hidden">
-                  {/* Waves */}
-                  <div className="absolute inset-0 opacity-30">
-                    <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-                      <path
-                        d="M0,20 Q50,10 100,20 T200,20 T300,20 T400,20 T500,20 T600,20 T700,20 T800,20"
-                        fill="none"
-                        stroke="white"
-                        strokeWidth="2"
-                      />
-                      <path
-                        d="M0,40 Q50,30 100,40 T200,40 T300,40 T400,40 T500,40 T600,40 T700,40 T800,40"
-                        fill="none"
-                        stroke="white"
-                        strokeWidth="2"
-                      />
-                    </svg>
+                {/* Modern minimalist progress visualization */}
+                <div className="relative h-32 bg-gradient-to-r from-blue-50 via-blue-100 to-orange-50 rounded-xl overflow-hidden p-6">
+                  {/* Progress path */}
+                  <div className="absolute top-1/2 left-4 right-4 h-2 bg-white/50 rounded-full -translate-y-1/2">
+                    <motion.div
+                      className="h-full bg-gradient-to-r from-blue-400 to-orange-400 rounded-full"
+                      animate={{ width: `${getBoatPosition()}%` }}
+                      transition={{ duration: 0.5 }}
+                    />
                   </div>
 
-                  {/* Boat */}
+                  {/* Start marker */}
+                  <div className="absolute left-6 top-1/2 -translate-y-1/2">
+                    <div className="w-8 h-8 bg-blue-400 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                      1
+                    </div>
+                  </div>
+
+                  {/* Milestone markers */}
+                  {[2, 3, 4, 5, 6, 7].map((week) => {
+                    const position = (week / 8) * 100;
+                    return (
+                      <div
+                        key={week}
+                        className="absolute top-1/2 -translate-y-1/2"
+                        style={{ left: `${position}%` }}
+                      >
+                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                          week <= currentWeek 
+                            ? 'bg-orange-400 text-white' 
+                            : 'bg-white border-2 border-gray-300 text-gray-400'
+                        }`}>
+                          {week}
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                  {/* Lighthouse (goal) */}
+                  <div className="absolute right-6 top-1/2 -translate-y-1/2">
+                    <div className="relative">
+                      <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
+                        <span className="text-xl">🏮</span>
+                      </div>
+                      {currentWeek === 8 && (
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="absolute -top-1 -right-1"
+                        >
+                          <span className="text-2xl">✨</span>
+                        </motion.div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Current position indicator */}
                   <motion.div
-                    className="absolute bottom-8 text-4xl"
-                    animate={{ left: `${getBoatPosition()}%` }}
+                    className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2"
+                    animate={{ left: `${Math.max(8, Math.min(92, getBoatPosition()))}%` }}
                     transition={{ duration: 0.5 }}
                   >
-                    ⛵
+                    <div className="relative">
+                      <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-xl border-4 border-blue-400">
+                        <span className="text-2xl">⛵</span>
+                      </div>
+                    </div>
                   </motion.div>
-
-                  {/* Lighthouse */}
-                  <div className="absolute right-4 bottom-4 text-5xl">
-                    🏮
-                  </div>
                 </div>
 
                 <div className="mt-4 text-center">

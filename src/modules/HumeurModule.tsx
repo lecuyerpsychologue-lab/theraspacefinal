@@ -19,14 +19,14 @@ interface HumeurEntry {
 }
 
 const emotions = [
-  { name: 'Joie', color: '#FFD700', angle: 0 },
-  { name: 'Fierté', color: '#FF6B9D', angle: 45 },
-  { name: 'Colère', color: '#FF4444', angle: 90 },
-  { name: 'Tristesse', color: '#4169E1', angle: 135 },
-  { name: 'Peur', color: '#9370DB', angle: 180 },
-  { name: 'Dégoût', color: '#32CD32', angle: 225 },
-  { name: 'Surprise', color: '#FFA500', angle: 270 },
-  { name: 'Calme', color: '#87CEEB', angle: 315 },
+  { name: 'Joie', color: '#FFD700', angle: 0, emoji: '😊' },
+  { name: 'Fierté', color: '#FF6B9D', angle: 45, emoji: '🌟' },
+  { name: 'Colère', color: '#FF4444', angle: 90, emoji: '😠' },
+  { name: 'Tristesse', color: '#4169E1', angle: 135, emoji: '😢' },
+  { name: 'Peur', color: '#9370DB', angle: 180, emoji: '😰' },
+  { name: 'Dégoût', color: '#32CD32', angle: 225, emoji: '🤢' },
+  { name: 'Surprise', color: '#FFA500', angle: 270, emoji: '😮' },
+  { name: 'Calme', color: '#87CEEB', angle: 315, emoji: '😌' },
 ];
 
 const contexts = [
@@ -45,26 +45,9 @@ export default function HumeurModule({ onBack }: HumeurModuleProps) {
   const [selectedContext, setSelectedContext] = useState<string>('');
   const [notes, setNotes] = useState<string>('');
   const [history, setHistory] = useLocalStorage<HumeurEntry[]>('humeur-history', []);
-  const [rotation, setRotation] = useState(0);
-  const [isSpinning, setIsSpinning] = useState(false);
 
-  const spinWheel = () => {
-    if (isSpinning) return;
-    
-    setIsSpinning(true);
-    const spins = 3; // Number of full rotations
-    const randomAngle = Math.floor(Math.random() * 360);
-    const totalRotation = rotation + (360 * spins) + randomAngle;
-    
-    setRotation(totalRotation);
-    
-    setTimeout(() => {
-      const finalAngle = totalRotation % 360;
-      const selectedIndex = Math.floor((360 - finalAngle + 22.5) / 45) % 8;
-      setSelectedEmotion(emotions[selectedIndex].name);
-      setIsSpinning(false);
-      setStep('intensity');
-    }, 3000);
+  const handleEmotionSelect = (emotionName: string) => {
+    setSelectedEmotion(emotionName);
   };
 
   const handleSave = () => {
@@ -145,73 +128,45 @@ export default function HumeurModule({ onBack }: HumeurModuleProps) {
             >
               <Card backgroundColor="bg-white">
                 <h2 className="text-2xl font-playfair font-bold text-noir-chaud mb-6 text-center">
-                  Tourne la roue des émotions
+                  Quelle émotion ressens-tu ?
                 </h2>
+                <p className="text-brun-terreux mb-6 text-center">
+                  Choisis l'émotion qui correspond le mieux à ton état actuel
+                </p>
 
-                <div className="flex flex-col items-center">
-                  {/* Emotion Wheel */}
-                  <div className="relative w-80 h-80 mb-8">
-                    <motion.div
-                      className="w-full h-full rounded-full relative"
-                      style={{ 
-                        background: `conic-gradient(
-                          ${emotions.map((e, i) => `${e.color} ${i * 45}deg ${(i + 1) * 45}deg`).join(', ')}
-                        )`
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                  {emotions.map((emotion) => (
+                    <motion.button
+                      key={emotion.name}
+                      whileHover={{ scale: 1.05, y: -4 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => handleEmotionSelect(emotion.name)}
+                      className={`p-6 rounded-2xl flex flex-col items-center gap-3 transition-all border-2 ${
+                        selectedEmotion === emotion.name
+                          ? 'border-brun-terreux shadow-lg'
+                          : 'border-transparent bg-beige hover:bg-opacity-70'
+                      }`}
+                      style={{
+                        backgroundColor: selectedEmotion === emotion.name ? `${emotion.color}20` : undefined
                       }}
-                      animate={{ rotate: rotation }}
-                      transition={{ duration: 3, ease: [0.32, 0.72, 0, 1] }}
                     >
-                      {/* Arrow pointer */}
-                      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-4">
-                        <div className="w-0 h-0 border-l-8 border-r-8 border-t-12 border-transparent border-t-noir-chaud" />
+                      <div 
+                        className="w-16 h-16 rounded-full flex items-center justify-center text-3xl"
+                        style={{ backgroundColor: emotion.color }}
+                      >
+                        {emotion.emoji}
                       </div>
+                      <span className="font-medium text-noir-chaud">
+                        {emotion.name}
+                      </span>
+                    </motion.button>
+                  ))}
+                </div>
 
-                      {/* Center circle */}
-                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 rounded-full bg-white shadow-lg flex items-center justify-center">
-                        <span className="text-2xl font-bold text-brun-terreux">
-                          {isSpinning ? '...' : selectedEmotion || '?'}
-                        </span>
-                      </div>
-                    </motion.div>
-
-                    {/* Emotion labels */}
-                    <div className="absolute inset-0">
-                      {emotions.map((emotion) => {
-                        const angle = (emotion.angle - 22.5) * (Math.PI / 180);
-                        const radius = 140;
-                        const x = Math.cos(angle) * radius;
-                        const y = Math.sin(angle) * radius;
-                        
-                        return (
-                          <div
-                            key={emotion.name}
-                            className="absolute top-1/2 left-1/2 text-sm font-medium text-noir-chaud"
-                            style={{
-                              transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`
-                            }}
-                          >
-                            {emotion.name}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  <Button onClick={spinWheel} disabled={isSpinning}>
-                    {isSpinning ? 'La roue tourne...' : selectedEmotion ? 'Retourner' : 'Faire tourner la roue'}
+                <div className="flex justify-center">
+                  <Button onClick={() => setStep('intensity')} disabled={!selectedEmotion}>
+                    Continuer
                   </Button>
-
-                  {selectedEmotion && !isSpinning && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="mt-6"
-                    >
-                      <Button variant="outline" onClick={() => setStep('intensity')}>
-                        Continuer avec {selectedEmotion}
-                      </Button>
-                    </motion.div>
-                  )}
                 </div>
               </Card>
             </motion.div>

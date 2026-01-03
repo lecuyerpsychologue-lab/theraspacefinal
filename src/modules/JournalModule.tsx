@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
-import { ArrowLeft, RotateCcw, Calendar, MessageCircle, User, Sprout, Heart, Footprints, BookOpen } from 'lucide-react';
+import { ArrowLeft, RotateCcw, Calendar, MessageCircle, User, Sprout, Heart, Footprints, BookOpen, Lightbulb } from 'lucide-react';
+import { useState } from 'react';
 import Card from '../components/Card';
+import Button from '../components/Button';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 
 interface JournalModuleProps {
@@ -16,10 +18,28 @@ export default function JournalModule({ onBack }: JournalModuleProps) {
   const [ancrageSessions] = useLocalStorage('ancrage-sessions', 0);
   const [psiMessages] = useLocalStorage<Array<{role: string, content: string, timestamp: string}>>('psia-messages', []);
   const [notes, setNotes] = useLocalStorage('journal-notes', '');
+  const [noteTitle, setNoteTitle] = useLocalStorage('journal-note-title', '');
+  const [showInspiration, setShowInspiration] = useState(false);
+
+  const inspirations = [
+    "Qu'est-ce qui t'a fait sourire aujourd'hui ?",
+    "Quelle a été ta plus grande victoire cette semaine ?",
+    "De quoi es-tu reconnaissant(e) aujourd'hui ?",
+    "Quel défi as-tu surmonté récemment ?",
+    "Qu'as-tu appris de nouveau sur toi-même ?",
+    "Quelle émotion as-tu ressentie le plus fort aujourd'hui ?",
+    "Quel objectif souhaites-tu atteindre cette semaine ?",
+    "Qu'est-ce qui te rend unique ?",
+  ];
+
+  const getRandomInspiration = () => {
+    return inspirations[Math.floor(Math.random() * inspirations.length)];
+  };
 
   const resetJournal = () => {
     if (confirm('Es-tu sûr de vouloir effacer toutes tes notes personnelles ?')) {
       setNotes('');
+      setNoteTitle('');
     }
   };
 
@@ -100,12 +120,43 @@ export default function JournalModule({ onBack }: JournalModuleProps) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Personal Notes */}
           <Card backgroundColor="bg-white">
-            <div className="flex items-center gap-2 mb-4">
-              <BookOpen className="text-brun-terreux" size={24} />
-              <h2 className="text-2xl font-playfair font-bold text-noir-chaud">
-                Notes Personnelles
-              </h2>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <BookOpen className="text-brun-terreux" size={24} />
+                <h2 className="text-2xl font-playfair font-bold text-noir-chaud">
+                  Notes Personnelles
+                </h2>
+              </div>
+              <Button 
+                variant="outline" 
+                onClick={() => setShowInspiration(!showInspiration)}
+                className="flex items-center gap-2"
+              >
+                <Lightbulb size={18} />
+                Inspiration
+              </Button>
             </div>
+            
+            {showInspiration && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border-2 border-orange-200"
+              >
+                <p className="text-brun-terreux font-medium flex items-start gap-2">
+                  <Lightbulb size={20} className="text-orange-500 flex-shrink-0 mt-0.5" />
+                  <span>{getRandomInspiration()}</span>
+                </p>
+              </motion.div>
+            )}
+
+            <input
+              type="text"
+              value={noteTitle}
+              onChange={(e) => setNoteTitle(e.target.value)}
+              placeholder="Titre de ta note (optionnel)..."
+              className="w-full p-3 mb-3 border-2 border-gray-200 rounded-xl focus:border-brun-terreux focus:outline-none font-medium"
+            />
             
             <textarea
               value={notes}

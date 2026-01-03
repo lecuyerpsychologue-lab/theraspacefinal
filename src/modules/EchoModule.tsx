@@ -19,8 +19,38 @@ export default function EchoModule({ onBack }: EchoModuleProps) {
   const [selectedReaction, setSelectedReaction] = useState('');
   const [analysis, setAnalysis] = useState({ analysis: '', reflection: '' });
   const [history, setHistory] = useLocalStorage<Array<{situation: string, choice: string, date: string}>>('echo-history', []);
+  const [scenarioCount, setScenarioCount] = useState(0);
+  const [globalAnalysis, setGlobalAnalysis] = useState('');
+
+  const MAX_SCENARIOS = 10;
+  const shouldShowGlobalAnalysis = scenarioCount >= MAX_SCENARIOS;
 
   const startNewScenario = async () => {
+    if (shouldShowGlobalAnalysis && !globalAnalysis) {
+      // Generate global analysis after 10 scenarios
+      setState('loading');
+      try {
+        // Simulate global analysis generation
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        const patterns = [
+          "Tu montres une tendance à réfléchir avant d'agir.",
+          "Tu privilégies souvent l'empathie dans tes choix.",
+          "Tu as un bon équilibre entre assertivité et compassion.",
+          "Tu cherches des solutions pratiques et directes."
+        ];
+        setGlobalAnalysis(
+          `Après avoir exploré ${MAX_SCENARIOS} scénarios, voici ce qui ressort de tes choix :\n\n` +
+          patterns[Math.floor(Math.random() * patterns.length)] + 
+          " Cette analyse te permettra de mieux comprendre ton mode de fonctionnement relationnel."
+        );
+        setState('analysis');
+      } catch (error) {
+        console.error('Error generating global analysis:', error);
+        setState('idle');
+      }
+      return;
+    }
+    
     setState('loading');
     try {
       const scenario = await getEchoScenario();
@@ -48,6 +78,9 @@ export default function EchoModule({ onBack }: EchoModuleProps) {
         date: new Date().toISOString()
       }]);
       
+      // Increment scenario count
+      setScenarioCount(scenarioCount + 1);
+      
       setState('analysis');
     } catch (error) {
       console.error('Error analyzing choice:', error);
@@ -64,8 +97,10 @@ export default function EchoModule({ onBack }: EchoModuleProps) {
   };
 
   const resetHistory = () => {
-    if (confirm('Es-tu sûr de vouloir effacer tout l\'historique ?')) {
+    if (confirm('Es-tu sûr de vouloir effacer tout l\'historique ? Cela réinitialisera aussi le compteur de scénarios.')) {
       setHistory([]);
+      setScenarioCount(0);
+      setGlobalAnalysis('');
     }
   };
 
@@ -102,9 +137,31 @@ export default function EchoModule({ onBack }: EchoModuleProps) {
         <h1 className="text-4xl md:text-5xl font-playfair font-bold text-noir-chaud mb-4">
           Module Écho
         </h1>
-        <p className="text-brun-terreux text-lg mb-8">
+        <p className="text-brun-terreux text-lg mb-4">
           Explore des situations et découvre tes réactions naturelles.
         </p>
+        
+        {/* Progress indicator */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-brun-terreux">
+              Scénarios explorés : {scenarioCount} / {MAX_SCENARIOS}
+            </span>
+            {shouldShowGlobalAnalysis && !globalAnalysis && (
+              <span className="text-sm font-medium text-green-600">
+                ✓ Prêt pour l'analyse globale
+              </span>
+            )}
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <motion.div
+              className="h-2 rounded-full bg-gradient-to-r from-pink-400 to-pink-600"
+              initial={{ width: 0 }}
+              animate={{ width: `${(scenarioCount / MAX_SCENARIOS) * 100}%` }}
+              transition={{ duration: 0.5 }}
+            />
+          </div>
+        </div>
 
         <AnimatePresence mode="wait">
           {/* Idle State */}
@@ -118,10 +175,14 @@ export default function EchoModule({ onBack }: EchoModuleProps) {
               <Card backgroundColor="bg-white">
                 <div className="text-center py-12">
                   <p className="text-xl text-brun-terreux mb-8">
-                    Prêt à explorer une nouvelle situation ?
+                    {shouldShowGlobalAnalysis && !globalAnalysis
+                      ? "Tu as exploré 10 scénarios ! Découvre maintenant ton analyse globale."
+                      : "Prêt à explorer une nouvelle situation ?"}
                   </p>
                   <Button onClick={startNewScenario}>
-                    Commencer une session
+                    {shouldShowGlobalAnalysis && !globalAnalysis
+                      ? "Voir l'analyse globale"
+                      : "Commencer une session"}
                   </Button>
                 </div>
               </Card>
@@ -195,45 +256,89 @@ export default function EchoModule({ onBack }: EchoModuleProps) {
               exit={{ opacity: 0, y: -20 }}
             >
               <Card backgroundColor="bg-white" className="mb-4">
-                <h2 className="text-2xl font-playfair font-bold text-noir-chaud mb-4">
-                  Analyse de ta réaction
-                </h2>
-                
-                <div className="mb-6 p-4 bg-beige rounded-xl">
-                  <p className="text-sm text-brun-terreux font-medium mb-2">
-                    Tu as choisi :
-                  </p>
-                  <p className="text-noir-chaud">
-                    "{selectedReaction}"
-                  </p>
-                </div>
+                {globalAnalysis ? (
+                  <>
+                    <h2 className="text-2xl font-playfair font-bold text-noir-chaud mb-4">
+                      Analyse Globale de tes Réactions
+                    </h2>
+                    
+                    <div className="p-6 bg-gradient-to-br from-pink-50 to-purple-50 rounded-xl mb-6">
+                      <p className="text-noir-chaud text-lg leading-relaxed whitespace-pre-line">
+                        {globalAnalysis}
+                      </p>
+                    </div>
 
-                <div className="mb-6">
-                  <h3 className="font-bold text-noir-chaud mb-2">Analyse :</h3>
-                  <p className="text-brun-terreux leading-relaxed">
-                    {analysis.analysis}
-                  </p>
-                </div>
+                    <div className="p-4 bg-beige rounded-xl mb-6">
+                      <p className="text-sm text-brun-terreux">
+                        💡 Cette analyse est basée sur tes {MAX_SCENARIOS} dernières réactions. 
+                        Continue d'explorer pour affiner ta compréhension de toi-même.
+                      </p>
+                    </div>
 
-                <div className="p-4 bg-identite rounded-xl">
-                  <h3 className="font-bold text-noir-chaud mb-2">Pour réfléchir :</h3>
-                  <p className="text-brun-terreux leading-relaxed">
-                    {analysis.reflection}
-                  </p>
-                </div>
+                    <div className="flex gap-4">
+                      <Button onClick={() => {
+                        setScenarioCount(0);
+                        setGlobalAnalysis('');
+                        reset();
+                      }}>
+                        Recommencer une série
+                      </Button>
+                      <Button variant="outline" onClick={reset}>
+                        Terminer
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <h2 className="text-2xl font-playfair font-bold text-noir-chaud mb-4">
+                      Analyse de ta réaction
+                    </h2>
+                    
+                    <div className="mb-6 p-4 bg-beige rounded-xl">
+                      <p className="text-sm text-brun-terreux font-medium mb-2">
+                        Tu as choisi :
+                      </p>
+                      <p className="text-noir-chaud">
+                        "{selectedReaction}"
+                      </p>
+                    </div>
 
-                <div className="flex gap-4 mt-6">
-                  <Button onClick={startNewScenario}>
-                    Nouvelle situation
-                  </Button>
-                  <Button variant="outline" onClick={reset}>
-                    Terminer
-                  </Button>
-                </div>
+                    <div className="mb-6">
+                      <h3 className="font-bold text-noir-chaud mb-2">Analyse :</h3>
+                      <p className="text-brun-terreux leading-relaxed">
+                        {analysis.analysis}
+                      </p>
+                    </div>
+
+                    <div className="p-4 bg-identite rounded-xl mb-6">
+                      <h3 className="font-bold text-noir-chaud mb-2">Pour réfléchir :</h3>
+                      <p className="text-brun-terreux leading-relaxed">
+                        {analysis.reflection}
+                      </p>
+                    </div>
+
+                    {scenarioCount < MAX_SCENARIOS && (
+                      <div className="mb-4 p-3 bg-blue-50 rounded-xl text-center">
+                        <p className="text-blue-800 text-sm">
+                          📊 Encore {MAX_SCENARIOS - scenarioCount} scénarios avant l'analyse globale
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="flex gap-4">
+                      <Button onClick={startNewScenario}>
+                        {shouldShowGlobalAnalysis ? "Voir l'analyse globale" : "Nouvelle situation"}
+                      </Button>
+                      <Button variant="outline" onClick={reset}>
+                        Terminer
+                      </Button>
+                    </div>
+                  </>
+                )}
               </Card>
 
               {/* History Preview */}
-              {history.length > 0 && (
+              {history.length > 0 && !globalAnalysis && (
                 <Card backgroundColor="bg-white">
                   <h3 className="text-lg font-playfair font-bold text-noir-chaud mb-4">
                     Historique ({history.length} sessions)

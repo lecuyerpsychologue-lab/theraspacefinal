@@ -20,7 +20,19 @@ export default function IdentityModule({ onBack }: IdentityModuleProps) {
   const [answers, setAnswers] = useLocalStorage<Array<{question: string, answer: string, date: string}>>('identity-answers', []);
   const [portrait, setPortrait] = useState('');
 
+  const MAX_QUESTIONS = 20;
+  const MIN_QUESTIONS_FOR_PORTRAIT = 12;
+  const progressPercentage = Math.min((answers.length / MAX_QUESTIONS) * 100, 100);
+  const canGeneratePortrait = answers.length >= MIN_QUESTIONS_FOR_PORTRAIT;
+  const hasReachedLimit = answers.length >= MAX_QUESTIONS;
+
   const loadNextQuestion = async () => {
+    if (hasReachedLimit) {
+      alert('Tu as atteint la limite de 20 questions. Tu peux maintenant générer ton portrait !');
+      setState('idle');
+      return;
+    }
+    
     setState('loading');
     try {
       const question = await getIdentityQuestion();
@@ -42,8 +54,14 @@ export default function IdentityModule({ onBack }: IdentityModuleProps) {
       date: new Date().toISOString()
     }]);
 
-    // Load next question automatically
-    loadNextQuestion();
+    // Check if limit reached after adding answer
+    if (answers.length + 1 >= MAX_QUESTIONS) {
+      alert('Tu as répondu à 20 questions ! Tu peux maintenant générer ton portrait.');
+      setState('idle');
+    } else {
+      // Load next question automatically
+      loadNextQuestion();
+    }
   };
 
   const handleTextSubmit = () => {
@@ -117,19 +135,54 @@ export default function IdentityModule({ onBack }: IdentityModuleProps) {
 
         {/* Progress indicator */}
         <Card backgroundColor="bg-white" className="mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-bold text-noir-chaud mb-1">
-                Questions répondues
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-lg font-bold text-noir-chaud">
+                Progression
               </h3>
-              <p className="text-brun-terreux">
-                {answers.length} réponses enregistrées
-              </p>
+              <span className="text-sm text-brun-terreux">
+                {answers.length} / {MAX_QUESTIONS} questions
+              </span>
             </div>
-            {answers.length >= 3 && (
-              <Button onClick={generatePortrait} variant="secondary">
+            
+            {/* Progress bar */}
+            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+              <motion.div
+                className="h-3 rounded-full bg-gradient-to-r from-purple-400 to-purple-600"
+                initial={{ width: 0 }}
+                animate={{ width: `${progressPercentage}%` }}
+                transition={{ duration: 0.5 }}
+              />
+            </div>
+            
+            <div className="mt-3 flex items-center justify-between text-sm">
+              <span className={`${canGeneratePortrait ? 'text-green-600 font-medium' : 'text-brun-terreux'}`}>
+                {canGeneratePortrait 
+                  ? '✓ Portrait disponible' 
+                  : `Encore ${MIN_QUESTIONS_FOR_PORTRAIT - answers.length} réponses pour le portrait`}
+              </span>
+              {hasReachedLimit && (
+                <span className="text-purple-600 font-medium">
+                  ✓ Limite atteinte
+                </span>
+              )}
+            </div>
+          </div>
+          
+          <div className="flex gap-3">
+            {canGeneratePortrait && (
+              <Button onClick={generatePortrait} variant={hasReachedLimit ? "primary" : "secondary"}>
                 <Sparkles size={20} className="mr-2" />
                 Générer mon portrait
+              </Button>
+            )}
+            {!hasReachedLimit && (
+              <Button 
+                onClick={loadNextQuestion} 
+                disabled={state === 'loading'}
+                variant={canGeneratePortrait ? "outline" : "primary"}
+              >
+                {state === 'question' ? 'Question suivante' : 'Commencer l\'exploration'}
               </Button>
             )}
           </div>
@@ -147,12 +200,24 @@ export default function IdentityModule({ onBack }: IdentityModuleProps) {
               <Card backgroundColor="bg-white">
                 <div className="text-center py-12">
                   <p className="text-xl text-brun-terreux mb-8">
-                    L'IA va te poser des questions pour mieux te connaître.
-                    Il n'y a pas de bonne ou mauvaise réponse.
+                    {answers.length === 0 
+                      ? "L'IA va te poser des questions pour mieux te connaître. Il n'y a pas de bonne ou mauvaise réponse."
+                      : hasReachedLimit
+                      ? "Tu as répondu à toutes les questions disponibles. Génère ton portrait pour découvrir ce que l'IA a appris de toi !"
+                      : "Continue ton exploration pour mieux te connaître."
+                    }
                   </p>
-                  <Button onClick={loadNextQuestion}>
-                    Commencer l'exploration
-                  </Button>
+                  {!hasReachedLimit && (
+                    <Button onClick={loadNextQuestion}>
+                      {answers.length === 0 ? 'Commencer l\'exploration' : 'Continuer l\'exploration'}
+                    </Button>
+                  )}
+                  {canGeneratePortrait && (
+                    <Button onClick={generatePortrait} variant={hasReachedLimit ? "primary" : "secondary"} className="ml-4">
+                      <Sparkles size={20} className="mr-2" />
+                      Générer mon portrait
+                    </Button>
+                  )}
                 </div>
               </Card>
             </motion.div>
