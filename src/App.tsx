@@ -11,6 +11,9 @@ import GardenModule from './modules/GardenModule';
 import IdentityModule from './modules/IdentityModule';
 import PsiAModule from './modules/PsiAModule';
 import JournalModule from './modules/JournalModule';
+import HumeurModule from './modules/HumeurModule';
+import PhareModule from './modules/PhareModule';
+import StatistiquesModule from './modules/StatistiquesModule';
 
 type Module = 
   | 'home' 
@@ -83,7 +86,9 @@ function App() {
         {currentModule === 'identite' && <IdentityModule onBack={navigateToHome} />}
         {currentModule === 'psia' && <PsiAModule onBack={navigateToHome} />}
         {currentModule === 'journal' && <JournalModule onBack={navigateToHome} />}
-        {/* New modules will be added here */}
+        {currentModule === 'humeur' && <HumeurModule onBack={navigateToHome} />}
+        {currentModule === 'phare' && <PhareModule onBack={navigateToHome} />}
+        {currentModule === 'statistiques' && <StatistiquesModule onBack={navigateToHome} />}
       </motion.div>
     </AnimatePresence>
   );
