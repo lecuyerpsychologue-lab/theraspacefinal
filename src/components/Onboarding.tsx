@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { Heart, Shield, Compass, ChevronRight, Lock } from 'lucide-react';
 import Button from '../components/Button';
 import Card from '../components/Card';
-import { useLocalStorage } from '../hooks/useLocalStorage';
 
 interface OnboardingProps {
   onComplete: (userData: UserData) => void;

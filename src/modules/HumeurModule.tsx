@@ -176,7 +176,7 @@ export default function HumeurModule({ onBack }: HumeurModuleProps) {
 
                     {/* Emotion labels */}
                     <div className="absolute inset-0">
-                      {emotions.map((emotion, index) => {
+                      {emotions.map((emotion) => {
                         const angle = (emotion.angle - 22.5) * (Math.PI / 180);
                         const radius = 140;
                         const x = Math.cos(angle) * radius;
