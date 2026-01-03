@@ -1,7 +1,6 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ArrowLeft, RotateCcw, Send, Loader2 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
-import { Button } from '../components/Button';
 import { getPsiAResponse, PsiAMessage } from '../lib/mockApi';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 

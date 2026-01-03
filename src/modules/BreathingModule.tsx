@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ArrowLeft, Play, Pause } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Button } from '../components/Button';

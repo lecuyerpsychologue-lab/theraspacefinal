@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, RotateCcw, Loader2, Sprout } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '../components/Button';
 import { getGardenActions, GardenAction } from '../lib/mockApi';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -13,7 +13,7 @@ type State = 'domain' | 'loading' | 'actions' | 'growing';
 
 export function GardenModule({ onBack }: GardenModuleProps) {
   const [state, setState] = useState<State>('domain');
-  const [selectedDomain, setSelectedDomain] = useState<string | null>(null);
+  const [, setSelectedDomain] = useState<string | null>(null);
   const [gardenData, setGardenData] = useState<GardenAction | null>(null);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [growthLevel, setGrowthLevel] = useLocalStorage<number>('garden-growth', 0);

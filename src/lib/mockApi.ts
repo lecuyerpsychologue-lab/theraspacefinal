@@ -192,7 +192,7 @@ export async function getIdentityQuestion(): Promise<IdentityQuestion> {
   return question;
 }
 
-export async function generateIdentityPortrait(answers: Record<string, string>): Promise<IdentityPortrait> {
+export async function generateIdentityPortrait(_answers: Record<string, string>): Promise<IdentityPortrait> {
   await delay(2500);
   
   const narratives = [

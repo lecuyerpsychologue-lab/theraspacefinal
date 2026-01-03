@@ -24,7 +24,7 @@ export function EchoModule({ onBack }: EchoModuleProps) {
     chosenReaction: null,
     analysis: null
   });
-  const [history, setHistory] = useLocalStorage<EchoAnalysis[]>('echo-history', []);
+  const [, setHistory] = useLocalStorage<EchoAnalysis[]>('echo-history', []);
 
   useEffect(() => {
     loadScenario();
