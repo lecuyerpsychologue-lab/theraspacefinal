@@ -8,6 +8,10 @@ import Card from '../components/Card';
 
 interface HomeProps {
   onNavigate: (module: string) => void;
+  userData: {
+    pseudo: string;
+    themes: string[];
+  };
 }
 
 const weatherIcons = [
@@ -29,7 +33,7 @@ const modules = [
   { id: 'journal', name: 'Journal', Icon: BookOpen, color: 'bg-journal', description: 'Ton espace personnel' },
 ];
 
-export default function Home({ onNavigate }: HomeProps) {
+export default function Home({ onNavigate, userData }: HomeProps) {
   const [selectedWeather, setSelectedWeather] = useState<number | null>(null);
   const [showWeatherDetail, setShowWeatherDetail] = useState(false);
 
@@ -49,9 +53,14 @@ export default function Home({ onNavigate }: HomeProps) {
         animate={{ opacity: 1, y: 0 }}
         className="flex justify-between items-center mb-8"
       >
-        <h1 className="text-4xl md:text-5xl font-playfair font-bold text-noir-chaud">
-          TheraSpace
-        </h1>
+        <div>
+          <h1 className="text-4xl md:text-5xl font-playfair font-bold text-noir-chaud">
+            TheraSpace
+          </h1>
+          <p className="text-brun-terreux text-sm mt-1">
+            Bonjour {userData.pseudo} 👋
+          </p>
+        </div>
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}

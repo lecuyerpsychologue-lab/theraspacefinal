@@ -1,5 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useLocalStorage } from './hooks/useLocalStorage';
+import Onboarding, { UserData } from './components/Onboarding';
+import PINLock from './components/PINLock';
 import Home from './modules/Home';
 import RespirationModule from './modules/RespirationModule';
 import AncrageModule from './modules/AncrageModule';
@@ -17,10 +20,24 @@ type Module =
   | 'jardin' 
   | 'identite' 
   | 'psia' 
-  | 'journal';
+  | 'journal'
+  | 'humeur'
+  | 'phare'
+  | 'statistiques';
 
 function App() {
   const [currentModule, setCurrentModule] = useState<Module>('home');
+  const [userData, setUserData] = useLocalStorage<UserData | null>('user-data', null);
+  const [isUnlocked, setIsUnlocked] = useState(false);
+
+  // Check if app needs unlocking on mount
+  useEffect(() => {
+    if (userData && userData.hasPIN) {
+      setIsUnlocked(false);
+    } else {
+      setIsUnlocked(true);
+    }
+  }, [userData]);
 
   const navigateToModule = (module: string) => {
     setCurrentModule(module as Module);
@@ -29,6 +46,25 @@ function App() {
   const navigateToHome = () => {
     setCurrentModule('home');
   };
+
+  const handleOnboardingComplete = (data: UserData) => {
+    setUserData(data);
+    setIsUnlocked(true);
+  };
+
+  const handleUnlock = () => {
+    setIsUnlocked(true);
+  };
+
+  // Show onboarding if no user data
+  if (!userData) {
+    return <Onboarding onComplete={handleOnboardingComplete} />;
+  }
+
+  // Show PIN lock if user has PIN and not unlocked
+  if (userData.hasPIN && !isUnlocked) {
+    return <PINLock expectedPIN={userData.pin!} onUnlock={handleUnlock} />;
+  }
 
   return (
     <AnimatePresence mode="wait">
@@ -39,7 +75,7 @@ function App() {
         exit={{ opacity: 0 }}
         transition={{ duration: 0.3 }}
       >
-        {currentModule === 'home' && <Home onNavigate={navigateToModule} />}
+        {currentModule === 'home' && <Home onNavigate={navigateToModule} userData={userData} />}
         {currentModule === 'respiration' && <RespirationModule onBack={navigateToHome} />}
         {currentModule === 'ancrage' && <AncrageModule onBack={navigateToHome} />}
         {currentModule === 'echo' && <EchoModule onBack={navigateToHome} />}
@@ -47,6 +83,7 @@ function App() {
         {currentModule === 'identite' && <IdentityModule onBack={navigateToHome} />}
         {currentModule === 'psia' && <PsiAModule onBack={navigateToHome} />}
         {currentModule === 'journal' && <JournalModule onBack={navigateToHome} />}
+        {/* New modules will be added here */}
       </motion.div>
     </AnimatePresence>
   );
